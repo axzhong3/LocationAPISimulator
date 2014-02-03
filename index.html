@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+	
+	<link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,300,400,600,700,800" rel="stylesheet" type="text/css">
+	<style type="text/css">
+	  body {
+		  font-family: 'Open Sans', sans-serif;
+		  width: 800px;
+	  }
+	  
+	  .intro {
+		  margin-top: 5px;
+		  margin-bottom: 5px;
+		  font-family: 'Open Sans', sans-serif;
+		  font-size: 20px;
+		  font-weight: 300;
+		  
+	  }
+	  
+	  .coord {
+		  font-family: 'Open Sans', sans-serif;
+		  font-size: 15px;
+	  }
+	  
+	  .control {
+		  
+	  }
+	  
+	  .onleft {
+		  position: relative;
+		  left: 0px;
+		  width: 30px;
+	  }
+	  
+	  .onright {
+		  position: relative;
+		  left: 60px;
+		  width: 30px;
+	  }
+	  
+	  .inmiddle {
+		  position: relative;
+		  left: 45px;
+		  width: 30px;
+	  }
+	  
+	  html, body, #map-canvas {
+		  margin: 2px;
+		  padding: 0px;
+		  height: 90%;
+	  }
+	  
+	</style>
+	<head>
+		<title>ARVisionMap</title>
+		
+		
+	</head>
+	<body>
+  		<div class="intro">
+  			augmented reality map
+  		</div>
+  		
+  		<div class="coord">
+  			<span>latitude</span>
+			<span id="lat"></span>
+			<span>longitude:</span>
+  			<span id="lon"></span>  			
+  		</div>
+		
+  		<script type="text/javascript">
+		  const step = 1e-5;
+		  const bitnum = 5;
+		  var lat = 37.87564;
+		  var lon = -122.25866;
+		  var map;
+		  var cir;
+		  document.getElementById("lat").innerHTML= lat.toFixed(bitnum);
+		  document.getElementById("lon").innerHTML= lon.toFixed(bitnum);
+		  
+		  function incLat() {
+			  lat += step;
+			  document.getElementById("lat").innerHTML=lat.toFixed(bitnum);
+			  refresh();
+		  }
+		  
+		  function decLat() {
+			  lat -= step;
+			  document.getElementById("lat").innerHTML=lat.toFixed(bitnum);
+		  	  refresh();
+		  }
+		  
+		  function incLon() {
+			  lon += step;
+			  document.getElementById("lon").innerHTML=lon.toFixed(bitnum);
+		  	  refresh();
+		  }
+		  
+		  function decLon() {
+			  lon -= step;
+			  document.getElementById("lon").innerHTML=lon.toFixed(bitnum);
+		  	  refresh();
+		  }
+		  
+		  function setLoc(lati, longi) {
+			  lat = lati;
+			  lon = longi;
+			  document.getElementById("lat").innerHTML= lat.toFixed(bitnum);
+			  document.getElementById("lon").innerHTML= lon.toFixed(bitnum);
+		  }
+
+		  function refresh() {
+		  	  var curLoc = new google.maps.LatLng(lat, lon);
+			  placeMarker(curLoc, map);
+		  }
+		  
+		  window.onkeydown = function (e) {
+			  var code = e.keyCode ? e.keyCode : e.which;
+			  if (code > 40 || code < 37)
+				  return;
+			  if (code === 37) { // left
+				  decLon();
+			  } 
+			  else if (code === 38) { // up
+				  incLat();
+			  }
+			  else if (code === 39) { // right
+				  incLon();
+			  }    	
+			  else if (code === 40) { // up
+				  decLat();    	
+			  }
+			  refresh();
+
+		  };
+		</script>
+   		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+		
+		<script type="text/javascript">
+			function initialize() {
+			
+			var loc = new google.maps.LatLng(lat, lon);
+			
+			var mapOptions = {
+			zoom: 20,
+			center: loc,
+			keyboardShortcuts: false
+			};
+			
+			map = new google.maps.Map(document.getElementById('map-canvas'),
+			mapOptions);
+
+			
+			addCircle(loc, map);
+			
+			google.maps.event.addListener(map, 'click', function(e) {
+			placeMarker(e.latLng, map);
+			});
+
+			}
+			
+			
+			
+			function loadScript() {
+			var script = document.createElement('script');
+			script.type = 'text/javascript';
+			script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' +
+	        'callback=initialize';
+			document.body.appendChild(script);
+			}
+			
+			function addCircle(position, map) {
+	  		if (cir != undefined)
+			cir.setMap(null);
+	  		cir = new google.maps.Circle({
+			center: position,
+			map: map,
+			radius: 1,
+			strokeColor: '#FF0000',
+			strokeOpacity: 0.8,
+			strokeWeight: 2,
+			fillColor: '#FF0000',
+			fillOpacity: 0.35
+			
+			});
+			}
+			
+			function placeMarker(position, map) {
+			
+			
+			
+			setLoc(position.lat(), position.lng());
+			addCircle(position, map);
+			
+	  		// 
+			map.panTo(position);
+			}
+			
+			
+			//window.onload = loadScript;
+			google.maps.event.addDomListener(window, 'load', initialize);
+		</script>
+		
+		
+  		<hr>
+  		<div class="control">
+			<button type="button" class="inmiddle" onclick="incLat();">N</button>
+  			<br>
+  			<button type="button" class="onleft" onclick="decLon();">W</button>
+  			<button type="button" class="onright" onclick="incLon();">E</button>
+  			<br>
+  			<button type="button" class="inmiddle" onclick="decLat();">S</button>
+		</div>
+		
+		<div id="map-canvas"></div>
+	</body>
+</html>	
