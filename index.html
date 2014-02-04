@@ -62,7 +62,7 @@
   		</div>
   		
   		<div class="coord">
-  			<span>latitude</span>
+  			<span>latitude:</span>
 			<span id="lat"></span>
 			<span>longitude:</span>
   			<span id="lon"></span>  			
@@ -71,8 +71,8 @@
   		<script type="text/javascript">
 		  const step = 1e-5;
 		  const bitnum = 5;
-		  var lat = 37.87564;
-		  var lon = -122.25866;
+		  var lat = {{lat}};
+		  var lon = {{lon}};
 		  var map;
 		  var cir;
 		  document.getElementById("lat").innerHTML= lat.toFixed(bitnum);
@@ -87,19 +87,19 @@
 		  function decLat() {
 			  lat -= step;
 			  document.getElementById("lat").innerHTML=lat.toFixed(bitnum);
-		  	  refresh();
+			  refresh();
 		  }
 		  
 		  function incLon() {
 			  lon += step;
 			  document.getElementById("lon").innerHTML=lon.toFixed(bitnum);
-		  	  refresh();
+			  refresh();
 		  }
 		  
 		  function decLon() {
 			  lon -= step;
 			  document.getElementById("lon").innerHTML=lon.toFixed(bitnum);
-		  	  refresh();
+			  refresh();
 		  }
 		  
 		  function setLoc(lati, longi) {
@@ -107,11 +107,19 @@
 			  lon = longi;
 			  document.getElementById("lat").innerHTML= lat.toFixed(bitnum);
 			  document.getElementById("lon").innerHTML= lon.toFixed(bitnum);
+			  upload();
 		  }
-
+		  
 		  function refresh() {
-		  	  var curLoc = new google.maps.LatLng(lat, lon);
+			  var curLoc = new google.maps.LatLng(lat, lon);
 			  placeMarker(curLoc, map);
+		  }
+		  
+		  function upload() {
+			  $.post("/update", {'lat': lat, 'lon': lon}, function(lat, lon) {
+				  console.log(lat);
+				  console.log(lon);
+			  });
 		  }
 		  
 		  window.onkeydown = function (e) {
@@ -130,88 +138,82 @@
 			  else if (code === 40) { // up
 				  decLat();    	
 			  }
-			  refresh();
-
 		  };
+		  
+		  window.onkeyup = function (e) {
+			  upload();
+		  }
 		</script>
    		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
 		
 		<script type="text/javascript">
-			function initialize() {
-			
-			var loc = new google.maps.LatLng(lat, lon);
-			
-			var mapOptions = {
-			zoom: 20,
-			center: loc,
-			keyboardShortcuts: false
-			};
-			
-			map = new google.maps.Map(document.getElementById('map-canvas'),
-			mapOptions);
-
-			
-			addCircle(loc, map);
-			
-			google.maps.event.addListener(map, 'click', function(e) {
-			placeMarker(e.latLng, map);
-			});
-
-			}
-			
-			
-			
-			function loadScript() {
-			var script = document.createElement('script');
-			script.type = 'text/javascript';
-			script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' +
-	        'callback=initialize';
-			document.body.appendChild(script);
-			}
-			
-			function addCircle(position, map) {
-	  		if (cir != undefined)
-			cir.setMap(null);
-	  		cir = new google.maps.Circle({
-			center: position,
-			map: map,
-			radius: 1,
-			strokeColor: '#FF0000',
-			strokeOpacity: 0.8,
-			strokeWeight: 2,
-			fillColor: '#FF0000',
-			fillOpacity: 0.35
-			
-			});
-			}
-			
-			function placeMarker(position, map) {
-			
-			
-			
-			setLoc(position.lat(), position.lng());
-			addCircle(position, map);
-			
-	  		// 
-			map.panTo(position);
-			}
-			
-			
-			//window.onload = loadScript;
-			google.maps.event.addDomListener(window, 'load', initialize);
+		  function initialize() {
+			  
+			  var loc = new google.maps.LatLng(lat, lon);
+			  
+			  var mapOptions = {
+				  zoom: 20,
+				  center: loc,
+				  keyboardShortcuts: false
+			  };
+			  
+			  map = new google.maps.Map(document.getElementById('map-canvas'),
+										mapOptions);
+			  
+			  addCircle(loc, map);
+			  
+			  google.maps.event.addListener(map, 'click', function(e) {
+				  placeMarker(e.latLng, map);
+			  });
+		  }
+		  
+		  
+		  function loadScript() {
+			  var script = document.createElement('script');
+			  script.type = 'text/javascript';
+			  script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&' +
+				  'callback=initialize';
+			  document.body.appendChild(script);
+		  }
+		  
+		  function addCircle(position, map) {
+			  if (cir != undefined)
+				  cir.setMap(null);
+			  cir = new google.maps.Circle({
+				  center: position,
+				  map: map,
+				  radius: 1,
+				  strokeColor: '#FF0000',
+				  strokeOpacity: 0.8,
+				  strokeWeight: 2,
+				  fillColor: '#FF0000',
+				  fillOpacity: 0.35
+				  
+			  });
+		  }
+		  
+		  function placeMarker(position, map) {
+			  setLoc(position.lat(), position.lng());
+			  addCircle(position, map);
+			  // 
+			  map.panTo(position);
+		  }
+		  
+		  google.maps.event.addDomListener(window, 'load', initialize);
 		</script>
 		
 		
   		<hr>
   		<div class="control">
-			<button type="button" class="inmiddle" onclick="incLat();">N</button>
+			<button type="button" class="inmiddle" onclick="incLat();upload();">N</button>
   			<br>
-  			<button type="button" class="onleft" onclick="decLon();">W</button>
-  			<button type="button" class="onright" onclick="incLon();">E</button>
+  			<button type="button" class="onleft" onclick="decLon();upload();">W</button>
+  			<button type="button" class="onright" onclick="incLon();upload();">E</button>
   			<br>
-  			<button type="button" class="inmiddle" onclick="decLat();">S</button>
+  			<button type="button" class="inmiddle" onclick="decLat();upload();">S</button>
 		</div>
 		
 		<div id="map-canvas"></div>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 	</body>
 </html>	
