@@ -75,6 +75,20 @@
 		  var lon = {{lon}};
 		  var map;
 		  var cir;
+		  var devices = [
+			  ['Afinia', 37.87477, -122.25848],
+			  ['Projet 3000', 37.87480, -122.25849],
+			  ['Product Photo Studio', 37.87484, -122.25851],
+			  ['VLS Laser Cutter', 37.87485, -122.25859],
+			  ['Power Electronics', 37.87479, -122.25857]
+		  ];
+		  var bounds = [
+			  [37.87488, -122.25851],
+			  [37.87476, -122.25846],
+			  [37.87474, -122.25856],
+			  [37.87486, -122.25861]
+		  ];
+
 		  document.getElementById("lat").innerHTML= lat.toFixed(bitnum);
 		  document.getElementById("lon").innerHTML= lon.toFixed(bitnum);
 		  
@@ -159,14 +173,56 @@
 			  
 			  map = new google.maps.Map(document.getElementById('map-canvas'),
 										mapOptions);
+
 			  
 			  addCircle(loc, map);
 			  
+			  // draw simulated boundary
+			  new google.maps.Polygon({
+				  map: map,
+				  paths: [
+					  new google.maps.LatLng(bounds[0][0], bounds[0][1]),
+					  new google.maps.LatLng(bounds[1][0], bounds[1][1]),
+					  new google.maps.LatLng(bounds[2][0], bounds[2][1]),
+					  new google.maps.LatLng(bounds[3][0], bounds[3][1]),
+				  ],
+				  strokeColor: '#2E8A5C',
+				  strokeOpacity: 0.8,
+				  strokeWeight: 2,
+				  fillColor: '#000000',
+				  fillOpacity: 0.10,
+				  draggable: false,
+				  geodesic: true,
+				  clickable: false
+			  });
+			  
+			  var infoWindow = new google.maps.InfoWindow();
+			  
+			  // draw all devices on the map
+			  for (var i = 0; i < devices.length; i++) {
+				  var markerloc = new google.maps.LatLng(devices[i][1], devices[i][2]);
+				  var marker = new google.maps.Marker({
+					  position: markerloc,
+					  icon: {
+						  path: google.maps.SymbolPath.BACKWARD_OPEN_ARROW,
+						  scale: 3
+					  },
+					  map: map,
+					  title: devices[i][0]
+				  });
+				  google.maps.event.addListener(marker, 'click', (function(marker, i) {
+					  return function() {
+						  infoWindow.setContent(devices[i][0]);
+						  infoWindow.open(map, marker);
+					  }
+				  })(marker, i));
+			  }
+
 			  google.maps.event.addListener(map, 'click', function(e) {
 				  placeMarker(e.latLng, map);
 			  });
 		  }
-		  
+
 		  
 		  function loadScript() {
 			  var script = document.createElement('script');
