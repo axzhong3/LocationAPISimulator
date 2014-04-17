@@ -53,8 +53,23 @@ class Update(Handler):
             location.longitude = lon
             location.put()
 
+class Json(Handler):
+    def render_front(self, lat="", lon=""):
+        self.render("json", lat=lat, lon=lon)
+    def get(self):
+        location = db.GqlQuery("select * from Location where name = :name", name=name).get()
+        if not location:
+            l = Location(name = name, latitude = DEFAULT_LAT, longitude = DEFAULT_LON)
+            l.put()
+            lat = DEFAULT_LAT
+            lon = DEFAULT_LON
+        else:
+            lat = location.latitude
+            lon = location.longitude
+        self.render_front(lat, lon)
 
 application = webapp2.WSGIApplication([
     ('/', Main),
-    ('/update', Update)
+    ('/update', Update),
+    ('/json', Json)
 ], debug = True)
