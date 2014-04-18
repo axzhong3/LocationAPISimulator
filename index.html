@@ -25,7 +25,16 @@
 	  .control {
 		  
 	  }
-	  
+
+	  .json {
+		  font-size: 15px;
+		  font-weight: 300;
+	  } 
+
+	  a{
+		  text-decoration: none;
+	  }
+
 	  .onleft {
 		  position: relative;
 		  left: 0px;
@@ -66,8 +75,12 @@
 			<span id="lat"></span>
 			<span>longitude:</span>
   			<span id="lon"></span>  			
-  		</div>
-		
+			<div class="json">
+				<span>JSON</span>
+				<a href="json">location</a>
+				<a href="calendar">calendar</a>
+  			</div>
+		</div>
   		<script type="text/javascript">
 		  const step = 1e-5;
 		  const bitnum = 5;

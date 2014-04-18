@@ -1,7 +1,7 @@
 import webapp2
 import jinja2
 import re
-import urllib2
+import urllib
 import time
 from google.appengine.ext import db
 
@@ -75,7 +75,7 @@ class Calendar(Handler):
     def render_front(self, device="unknown", status="unknown", startTime="unknown", endTime="unknown"):
         self.render("calendar", device=device, status=status, startTime=startTime, endTime=endTime)
     def get(self):
-        response = urllib2.urlopen('https://www.google.com/calendar/embed?src=berkeley.edu_373035363931382d363930@resource.calendar.google.com')
+        response = urllib.urlopen('https://www.google.com/calendar/embed?src=berkeley.edu_373035363931382d363930@resource.calendar.google.com')
         r = response.read()
         starting = re.findall('(?<="startTime":").{19}', r)
         ending = re.findall('(?<="endTime":").{19}', r)
